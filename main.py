@@ -10,12 +10,12 @@ def main():
         os.getcwd(), 'chromedriver'))
     try:
         driver.get(url)
-        sleep(0.5)
+        sleep(10)
         element = driver.findElement(By['XPATH'], '//input[@name="q"]')
-        # element.sendKeys('Raiyaan Yeasin')
-        # driver.addCookie({})
-        # driver.switchWindow(parent)
-        # driver.close()
+        element.sendKeys('Raiyaan Yeasin')
+        driver.addCookie({})
+        driver.switchWindow('parent')
+        driver.close()
     except Exception as e:
         print(e)
 
