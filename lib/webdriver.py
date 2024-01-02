@@ -27,8 +27,7 @@ class WebDriver(object):
         else:
             driverPath = os.path.join(os.getcwd(), 'chromedriver')
         try:
-            self.ps = subprocess.Popen(
-                [driverPath, '--port=4444'])
+            self.ps = subprocess.Popen([driverPath, '--port=4444'], stdout=subprocess.DEVNULL)
             status = self.wait_for_webdriver('localhost', '4444')
             if not status:
                 raise DriverServerStartException(
