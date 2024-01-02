@@ -1,9 +1,14 @@
 import os
 import subprocess
 from .webelement import WebElement
+from .errors import DriverServerStartException
 import base64
 from datetime import date
 from .req import req
+import atexit
+import socket
+import time
+import signal
 
 
 class WebDriver(object):
@@ -17,17 +22,45 @@ class WebDriver(object):
         """
         self.host = 'http://127.0.0.1:4444'
         self.sessionId = ''
-        if (args.get('executablePath')):
+        if args.get('executablePath'):
             driverPath = args['executablePath']
         else:
             driverPath = os.path.join(os.getcwd(), 'chromedriver')
         try:
-            subprocess.Popen([driverPath, '--port=4444'])
+            self.ps = subprocess.Popen([driverPath, '--port=4444'], stdout=subprocess.DEVNULL)
+            status = self.wait_for_webdriver('localhost', '4444')
+            if not status:
+                raise DriverServerStartException(
+                    f"Could not start webdriver server: Error code: {self.ps.returncode}")
+
+            # Close the server process on 'exit' signal
+            atexit.register(self.handle_exit)
+            signal.signal(signal.SIGINT, self.handle_exit)
+            signal.signal(signal.SIGTERM, self.handle_exit)
             self.getSession()
             if (args.get('fullScreen') == True):
                 self.fullScreen()
         except Exception as e:
             print(e)
+
+    def wait_for_webdriver(self, host, port, timeout=60):
+        """Wait for the webdriver to start"""
+        start_time = time.time()
+        end_time = start_time + timeout
+
+        while time.time() < end_time:
+            try:
+                # Attempt to create a socket and connect to the specified host and port
+                with socket.create_connection((host, port), timeout=1):
+                    return True
+            except (socket.error, socket.timeout):
+                # Retry if the connection fails
+                time.sleep(1)
+
+        return False
+
+    def handle_exit(self, *args):
+        self.ps.kill()
 
     def getSession(self) -> None:
         """
