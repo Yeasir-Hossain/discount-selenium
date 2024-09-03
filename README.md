@@ -2,6 +2,8 @@
 
 The **WebDriver API Wrapper** is a Python library designed to provide a simplified interface for interacting with web browsers using the WebDriver protocol. The project aims to encapsulate the functionalities of Selenium WebDriver by utilizing HTTP requests to a WebDriver server.
 
+For downloading the latest chrome driver [click here](https://googlechromelabs.github.io/chrome-for-testing/#stable)
+
 ## Features
 
 1. **Initialization and Configuration:**
